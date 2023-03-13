@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r}
-#Report Exercise 4
+#Report Exercise 4 (first plot)
 library(tidyverse)
 
 #Erarbeitung der ersten Grafik
@@ -44,7 +44,7 @@ plot1
 ```
 
 ```{r}
-#Report Exercise 4
+#Report Exercise 4 (second plot)
 library(tidyverse)
 library(ggpubr)
 
@@ -71,7 +71,7 @@ temp_days <- temp_days |>
 temp_days
 
 
-#Idee: Korrelation Ozonkonzentration und Temperatur
+#Korrelation Ozonkonzentration und Temperatur
 plot_ozone <- ggplot(
   data = ozone_days,
   aes(row_num, ozone_concentration)) +
@@ -87,10 +87,42 @@ plot_temperature <- ggplot(
   geom_point(color = "red4") +
   labs(x = "Days (May - Sep)",
        y = "Temperature (F°)")
-  theme_classic()
+theme_classic()
 plot_temperature
 
 #Kombinieren zweier Plots
 ggarrange(plot_ozone, plot_temperature, nrow = 2, common.legend = TRUE, legend = "bottom")
+```
+
+```{r}
+#Report Exercise 4 (third plot)
+library(tidyverse)
+
+#Erarbeitung der dritten Grafik
+#Herunterladen der Airquality-Daten
+airquality <- datasets::airquality
+
+#Generieren einer fortlaufenden Nummerierung
+airquality <- airquality |>
+  mutate(row_num = row_number())
+airquality
+
+#Filtern der relevanten Daten
+solar_radiaton <- subset(airquality, Solar.R & Temp)
+solar_radiaton <- solar_radiaton |>
+  group_by(Temp) |>
+  summarise(solar.radiaton = Solar.R)
+solar_radiaton
+
+#Korrelation von Sonneneinstrahlung und Wind
+plot_3 <- ggplot(
+  data = solar_radiaton,
+  aes(solar.radiaton, Temp)) +
+  geom_point(color = "violet") +
+  geom_smooth(method = "lm", color = "orange4") +
+  labs(x = "Solarradiation",
+       y = "Temperature")
+theme_classic()
+plot_3
 ```
 
