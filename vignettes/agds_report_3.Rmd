@@ -1,0 +1,115 @@
+---
+title: "report.Rmd"
+author: "Naomi Huber"
+date: "2023-02-20"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+#Report Exercise 3
+```{r pressure, echo=FALSE}
+library(dtplyr)
+library(tidyverse)
+
+DatabaseS1 <- read.csv2("/Users/naomihuber/Desktop/UNIBE/05_FS23/Applied Geodata Science/agds_report_naomihuber/Datasets/1249534s1-s6.csv")
+
+#Teilaufgabe 1
+#Umwandeln von <chr>-Daten in <int>-Daten, damit gerechnet werden kann
+DatabaseS1$ambient_CO2 <- as.integer(DatabaseS1$ambient_CO2)
+DatabaseS1$increased_CO2 <- as.integer(DatabaseS1$increased_CO2)
+DatabaseS1$Time_years <- as.numeric(DatabaseS1$Time_years)
+
+DatabaseS1
+
+
+
+#Teilaufgabe 2
+#Aggregation nach den Experimenten mit den Mittelwertdaten
+experimentdaten <- DatabaseS1 |>
+  group_by(Experiment) |>
+  summarise(Mittelwert_increased_CO2 = mean(increased_CO2),
+            Mittelwert_ambient_CO2 = mean(ambient_CO2))
+experimentdaten
+
+#Funktion log_response_function definieren
+log_response_function <- function(x,y) {
+  return(log(x/y))
+}
+
+#Aggregation nach log_response ratio
+experimentdaten_final <- experimentdaten |>
+  group_by(Experiment) |>
+  summarise(log_response_ratio = log_response_function(Mittelwert_increased_CO2, Mittelwert_ambient_CO2))
+experimentdaten_final
+
+knitr::kable(experimentdaten_final)
+
+
+
+#Teilaufgabe 3
+#Die Variable "Phase" kreieren
+DatabaseS1$phase <- ifelse(DatabaseS1$Time_years < 3, "early_phase",
+                           ifelse(DatabaseS1$Time_years >= 3 & DatabaseS1$Time_years <= 6, "mid_phase",
+                                  ifelse(DatabaseS1$Time_years > 6, "late_phase", NA)))
+
+
+#Berechnung des log_response für jede Phase
+log_response <- DatabaseS1 |>
+  group_by(phase) |>
+  summarise(log_response_ratio = mean(log(increased_CO2 / ambient_CO2))) |>
+  drop_na()
+log_response
+
+knitr::kable(log_response)
+
+
+```
+
+#Report Exercise 4
+```{r}
+#Herunterladen der Aisquality-Daten
+airquality <- datasets::airquality
+airquality
+
+#Substrahieren der Mai-Daten
+may_dates <- subset(airquality, Month == 5)
+may_dates <- may_dates |>
+  group_by(Day) |>
+  summarise(temperatures_f = (Temp))
+may_dates
+
+#Generieren der Durchschnittstemperatur von Mai
+mean_temperature_may <- subset(airquality, Month ==5)
+mean_temperature_may <- mean_temperature_may |>
+  group_by(Month) |>
+  summarise(mean_temperature = mean(Temp))
+mean_temperature_may
+
+#Figure 1
+plot1 <- ggplot(
+  data = may_dates,
+  aes(Day, temperatures_f)) +
+  geom_line(color = "red4") +
+  labs(title = "Daily Temperature (F°) in May",
+       x = "Days in May",
+       y = "Temperature (F°)") + 
+  theme_grey()
+
+plot1
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
