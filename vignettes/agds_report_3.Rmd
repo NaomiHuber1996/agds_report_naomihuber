@@ -75,42 +75,5 @@ log_response
 
 knitr::kable(log_response)
 
-hello
-
 ```
-
-#Report Exercise 4
-```{r}
-#Herunterladen der Aisquality-Daten
-airquality <- datasets::airquality
-airquality
-
-#Substrahieren der Mai-Daten
-may_dates <- subset(airquality, Month == 5)
-may_dates <- may_dates |>
-  group_by(Day) |>
-  summarise(temperatures_f = (Temp))
-may_dates
-
-#Generieren der Durchschnittstemperatur von Mai
-mean_temperature_may <- subset(airquality, Month ==5)
-mean_temperature_may <- mean_temperature_may |>
-  group_by(Month) |>
-  summarise(mean_temperature = mean(Temp))
-mean_temperature_may
-
-#Figure 1
-plot1 <- ggplot(
-  data = may_dates,
-  aes(Day, temperatures_f)) +
-  geom_line(color = "red4") +
-  labs(title = "Daily Temperature (F°) in May",
-       x = "Days in May",
-       y = "Temperature (F°)") + 
-  theme_grey()
-
-plot1
-
-```
-
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
