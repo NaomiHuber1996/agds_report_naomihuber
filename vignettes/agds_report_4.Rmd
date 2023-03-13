@@ -9,11 +9,12 @@ output: html_document
 #Report Exercise 4
 library(tidyverse)
 
-#Herunterladen der Aisquality-Daten
+#Erarbeitung der ersten Grafik
+#Herunterladen der Airquality-Daten
 airquality <- datasets::airquality
 airquality
 
-#Substrahieren der Mai-Daten
+#Filtern der Mai-Daten
 may_dates <- subset(airquality, Month == 5)
 may_dates <- may_dates |>
   group_by(Day) |>
@@ -40,5 +41,56 @@ plot1 <- ggplot(
 
 plot1
 
+```
+
+```{r}
+#Report Exercise 4
+library(tidyverse)
+library(ggpubr)
+
+#Erarbeitung der zweiten Grafik
+#Herunterladen der Airquality-Daten
+airquality <- datasets::airquality
+
+#Generieren einer fortlaufenden Nummerierung
+airquality <- airquality |>
+  mutate(row_num = row_number())
+airquality
+
+#Filtern der relevanten Daten
+ozone_days <- subset(airquality, Ozone & row_num)
+ozone_days <- ozone_days |>
+  group_by(row_num) |>
+  summarise(ozone_concentration = Ozone)
+ozone_days
+
+temp_days <- subset(airquality, Temp & row_num)
+temp_days <- temp_days |>
+  group_by(row_num) |>
+  summarise(temperature = Temp)
+temp_days
+
+
+#Idee: Korrelation Ozonkonzentration und Temperatur
+plot_ozone <- ggplot(
+  data = ozone_days,
+  aes(row_num, ozone_concentration)) +
+  geom_point(color = "blue4") +
+  labs(x = "Days (May - Sep)",
+       y = "Ozone Concentration")
+  theme_classic()
+plot_ozone
+
+plot_temperature <- ggplot(
+  data = temp_days,
+  aes(row_num, temperature)) +
+  geom_point(color = "red4") +
+  labs(x = "Days (May - Sep)",
+       y = "Temperature (F°)")
+  theme_classic()
+plot_temperature
+
+#Kombinieren zweier Plots
+ggarrange(plot_ozone, plot_temperature, nrow = 2, common.legend = TRUE, legend = "bottom")
 ```
 
