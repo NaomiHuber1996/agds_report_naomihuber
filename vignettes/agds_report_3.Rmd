@@ -24,7 +24,7 @@ summary(cars)
 library(dtplyr)
 library(tidyverse)
 
-DatabaseS1 <- read.csv2("/Users/naomihuber/Desktop/UNIBE/05_FS23/Applied Geodata Science/agds_report_naomihuber/Datasets/1249534s1-s6.csv")
+DatabaseS1 <- read.csv2("/Users/naomihuber/Desktop/UNIBE/05_FS23/Applied Geodata Science/agds_report_naomihuber/Datasets/Report Exercises 3.csv")
 
 #Teilaufgabe 1
 #Umwandeln von <chr>-Daten in <int>-Daten, damit gerechnet werden kann
