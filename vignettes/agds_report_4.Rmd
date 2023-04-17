@@ -12,21 +12,18 @@ library(tidyverse)
 #Erarbeitung der ersten Grafik
 #Herunterladen der Airquality-Daten
 airquality <- datasets::airquality
-airquality
 
 #Filtern der Mai-Daten
 may_dates <- subset(airquality, Month == 5)
 may_dates <- may_dates |>
   group_by(Day) |>
   summarise(temperatures_f = (Temp))
-may_dates
 
 #Generieren der Durchschnittstemperatur von Mai
 mean_temperature_may <- subset(airquality, Month ==5)
 mean_temperature_may <- mean_temperature_may |>
   group_by(Month) |>
   summarise(mean_temperature = mean(Temp))
-mean_temperature_may
 
 #Figure 1 "Daily Temperature (F°) in May"
 ggplot(
@@ -57,20 +54,17 @@ airquality <- datasets::airquality
 #Generieren einer fortlaufenden Nummerierung
 airquality <- airquality |>
   mutate(row_num = row_number())
-airquality
 
 #Filtern der relevanten Daten, hier Ozonkonzentration und Temperatur in Fahrenheit
 ozone_days <- subset(airquality, Ozone & row_num)
 ozone_days <- ozone_days |>
   group_by(row_num) |>
   summarise(ozone_concentration = Ozone)
-ozone_days
 
 temp_days <- subset(airquality, Temp & row_num)
 temp_days <- temp_days |>
   group_by(row_num) |>
   summarise(temperature = Temp)
-temp_days
 
 
 #Korrelation Ozonkonzentration und Temperatur
@@ -95,6 +89,7 @@ plot_temperature
 #Kombinieren zweier Plots
 ggarrange(plot_ozone, plot_temperature, nrow = 2, common.legend = TRUE, legend = "bottom")
 ```
+
 In the second visualization the lower graph shows the daily temperatures (in Fahrenheit) from the beginning of May to the end of September. The upper visualization pictures the ozone concentration in the same time spectrum. The used statistical metric is the correlation. One can notice a connection between rising temperatures and a higher concentration in the ozone. Nevertheless, there are maybe some out layers in the concentration of ozone around day 30, day 60 and day 120. 
 
 As a hypothesis one can assume that the warmer the atmosphere becomes, the more ozone can be produced. But the influencing factor of the solar radiation is not considered.
@@ -112,14 +107,12 @@ airquality <- datasets::airquality
 #Generieren einer fortlaufenden Nummerierung
 airquality <- airquality |>
   mutate(row_num = row_number())
-airquality
 
 #Filtern der relevanten Daten
 solar_radiaton <- subset(airquality, Solar.R & Temp)
 solar_radiaton <- solar_radiaton |>
   group_by(Temp) |>
   summarise(solar.radiaton = Solar.R)
-solar_radiaton
 
 #Korrelation von Sonneneinstrahlung und Wind
 ggplot(
@@ -131,5 +124,7 @@ ggplot(
        y = "Temperature")
 theme_classic()
 ```
+
+
 Regarding the third visualization the solar radiation is located on the x-axis and the temperature can be found on the y-axis. As a hypothesis one can assume that a higher solar radiation leads to higher temperatures. Nonetheless, the values are scattered in the plot, and it is very difficult to get concrete information out of it. Therefore, it is useful to display a trend line, which is not an actual statistical metric but arises out of them such as for example the regression analysis. Anyhow one can record low temperatures measured although the solar radiation measured was high. It can be assumed that this may be an out layer or that the sky was covered by thick clouds. These could have suppressed the potential temperature rise. But considering the trend line it becomes clear that a higher solar radiation favors higher temperatures. 
 
