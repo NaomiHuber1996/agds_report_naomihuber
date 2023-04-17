@@ -5,22 +5,10 @@ date: "2023-02-20"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
-```
-
 #Report Exercise 3
-```{r pressure, echo=FALSE}
+
+Bevor ich die csv-Daten einlese, habe ich die Daten manuell bearbeitet und nur die relevanten Daten belassen. Anschliessend kann ich nun die Daten wie folgt einlesen:
+```{r}
 library(dtplyr)
 library(tidyverse)
 
@@ -31,11 +19,11 @@ DatabaseS1 <- read.csv2("/Users/naomihuber/Desktop/UNIBE/05_FS23/Applied Geodata
 DatabaseS1$ambient_CO2 <- as.integer(DatabaseS1$ambient_CO2)
 DatabaseS1$increased_CO2 <- as.integer(DatabaseS1$increased_CO2)
 DatabaseS1$Time_years <- as.numeric(DatabaseS1$Time_years)
-
 DatabaseS1
+```
 
-
-
+Nun kann ich die Daten per Experiment filtern und anschliessend das log-response ratio für jedes Experiment berechnen. Dies habe ich wie folgt gemacht:
+```{r}
 #Teilaufgabe 2
 #Aggregation nach den Experimenten mit den Mittelwertdaten
 experimentdaten <- DatabaseS1 |>
@@ -56,9 +44,10 @@ experimentdaten_final <- experimentdaten |>
 experimentdaten_final
 
 knitr::kable(experimentdaten_final)
+```
 
-
-
+Zu guter Letzt gilt es neue Variablen zu erstellen, welchen ich die zuvor berechneten Daten zuordne. Dies habe ich so gemacht:
+```{r}
 #Teilaufgabe 3
 #Die Variable "Phase" kreieren
 DatabaseS1$phase <- ifelse(DatabaseS1$Time_years < 3, "early_phase",
@@ -74,6 +63,5 @@ log_response <- DatabaseS1 |>
 log_response
 
 knitr::kable(log_response)
-
 ```
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
