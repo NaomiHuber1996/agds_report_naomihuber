@@ -28,8 +28,8 @@ mean_temperature_may <- mean_temperature_may |>
   summarise(mean_temperature = mean(Temp))
 mean_temperature_may
 
-#Figure 1
-plot1 <- ggplot(
+#Figure 1 "Daily Temperature (F°) in May"
+ggplot(
   data = may_dates,
   aes(Day, temperatures_f)) +
   geom_line(color = "red4") +
@@ -39,9 +39,8 @@ plot1 <- ggplot(
        y = "Temperature (F°)") + 
   theme_grey()
 
-plot1
-
 ```
+Diese erste Grafik zeigt eine Zeitreihe für den Monat Mai. Auf der y-Achse sind die jeweiligen Temperaturen in Fahrenheit (F°) zu finden. Ausserdem habe ich mit die durchschnittliche Temperatur berechnet, damit auf den ersten Blick erkennbar wird, ob die Temperaturen an einem Tag eher hoch oder tief sind. Diese habe ich der Einfachheit halber separat berechnet und für die Veranschaulichung importiert. Insgesamt stellt man fest, dass es gegen Ende Mai wärmer ist, da höhere Temperaturen aufgezeichnet wurden. Dies macht Sinn, denn Ende Mai ist es im Jahresverlauf wärmer als anfangs Mai. 
 
 ```{r}
 #Report Exercise 4 (second plot)
@@ -57,7 +56,7 @@ airquality <- airquality |>
   mutate(row_num = row_number())
 airquality
 
-#Filtern der relevanten Daten
+#Filtern der relevanten Daten, hier Ozonkonzentration und Temperatur in Fahrenheit
 ozone_days <- subset(airquality, Ozone & row_num)
 ozone_days <- ozone_days |>
   group_by(row_num) |>
@@ -93,6 +92,8 @@ plot_temperature
 #Kombinieren zweier Plots
 ggarrange(plot_ozone, plot_temperature, nrow = 2, common.legend = TRUE, legend = "bottom")
 ```
+Die zweite Grafik besteht aus zwei Veranschaulichungen. Die obere Visualisation zeigt die Zeitreihe von Mai bis September mit der jeweiligen Ozonkonzentration auf der y-Achse. Unten ist dieselbe Zeitreihe dargestellt, wobei auf der y-Achse aber die Temperatur in Fahrenheit (F°) angegeben ist. Im direkten Vergleich beider Visualisationen kann man nun feststellen, ob die Konzentration des Ozons und die Temperatur sich gleich verhalte, d.h. ob bei höheren Temperaturen auch die Ozonkonzentration höher ist. Betrachtet man die Grafik, stellt man fest, dass tatsächlich eine Ähnlichkeit besteht. Dennoch sind noch viele Datenpunkte nicht deckungsgleich.
+
 
 ```{r}
 #Report Exercise 4 (third plot)
@@ -115,7 +116,7 @@ solar_radiaton <- solar_radiaton |>
 solar_radiaton
 
 #Korrelation von Sonneneinstrahlung und Wind
-plot_3 <- ggplot(
+ggplot(
   data = solar_radiaton,
   aes(solar.radiaton, Temp)) +
   geom_point(color = "violet") +
@@ -123,6 +124,5 @@ plot_3 <- ggplot(
   labs(x = "Solarradiation",
        y = "Temperature")
 theme_classic()
-plot_3
 ```
-
+Die dritte Grafik zeigt den Zusammenhang zwischen der Sonneneinstrahlung und der Temperatur. Da die einzelnen Datenpunkte im Diagramm sehr verstreut sind und von blossem Auge kaum eine Information abzulesen ist, habe ich mich dazu entschieden mit einer Trendlinie Abhilfe zu schaffen. Mit Hilfe dieser erkennt man nun, dass bei höherer Sonneneinstrahlung tatsächlich auch höhere Temperaturen gemessen werden. Dennoch ist dieser Trend nicht all zu stark, was ich auf die Einwirkung der Atmosphäre zurückführe.
