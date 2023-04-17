@@ -40,7 +40,10 @@ ggplot(
   theme_grey()
 
 ```
-Diese erste Grafik zeigt eine Zeitreihe für den Monat Mai. Auf der y-Achse sind die jeweiligen Temperaturen in Fahrenheit (F°) zu finden. Ausserdem habe ich mit die durchschnittliche Temperatur berechnet, damit auf den ersten Blick erkennbar wird, ob die Temperaturen an einem Tag eher hoch oder tief sind. Diese habe ich der Einfachheit halber separat berechnet und für die Veranschaulichung importiert. Insgesamt stellt man fest, dass es gegen Ende Mai wärmer ist, da höhere Temperaturen aufgezeichnet wurden. Dies macht Sinn, denn Ende Mai ist es im Jahresverlauf wärmer als anfangs Mai. 
+The first visualization of the dataset shows the daily temperature in the month of May. Looking at the graph, one finds the days in the month may on the x-axis and the temperatures on the y-axis. The temperature is given in Fahrenheit. Furthermore, the average monthly temperature is marked with the black line which is about 65° F. Regarding the statistical metrics used it becomes clear that the visualiza-tion one uses the mean because this metric is well known and already used in meteorological reporting. Additionally, the average temperature can be compared to the average temperatures in other years and trends can be calculated.
+
+Regarding the graph one can notice a trend of warmer temperatures to the end of May. This makes sense because summer will come. Also, one can report temperature fluctuations which is due to a measurement location in the temperate latitudes.  
+
 
 ```{r}
 #Report Exercise 4 (second plot)
@@ -92,7 +95,10 @@ plot_temperature
 #Kombinieren zweier Plots
 ggarrange(plot_ozone, plot_temperature, nrow = 2, common.legend = TRUE, legend = "bottom")
 ```
-Die zweite Grafik besteht aus zwei Veranschaulichungen. Die obere Visualisation zeigt die Zeitreihe von Mai bis September mit der jeweiligen Ozonkonzentration auf der y-Achse. Unten ist dieselbe Zeitreihe dargestellt, wobei auf der y-Achse aber die Temperatur in Fahrenheit (F°) angegeben ist. Im direkten Vergleich beider Visualisationen kann man nun feststellen, ob die Konzentration des Ozons und die Temperatur sich gleich verhalte, d.h. ob bei höheren Temperaturen auch die Ozonkonzentration höher ist. Betrachtet man die Grafik, stellt man fest, dass tatsächlich eine Ähnlichkeit besteht. Dennoch sind noch viele Datenpunkte nicht deckungsgleich.
+In the second visualization the lower graph shows the daily temperatures (in Fahrenheit) from the beginning of May to the end of September. The upper visualization pictures the ozone concentration in the same time spectrum. The used statistical metric is the correlation. One can notice a connection between rising temperatures and a higher concentration in the ozone. Nevertheless, there are maybe some out layers in the concentration of ozone around day 30, day 60 and day 120. 
+
+As a hypothesis one can assume that the warmer the atmosphere becomes, the more ozone can be produced. But the influencing factor of the solar radiation is not considered.
+
 
 
 ```{r}
@@ -125,4 +131,5 @@ ggplot(
        y = "Temperature")
 theme_classic()
 ```
-Die dritte Grafik zeigt den Zusammenhang zwischen der Sonneneinstrahlung und der Temperatur. Da die einzelnen Datenpunkte im Diagramm sehr verstreut sind und von blossem Auge kaum eine Information abzulesen ist, habe ich mich dazu entschieden mit einer Trendlinie Abhilfe zu schaffen. Mit Hilfe dieser erkennt man nun, dass bei höherer Sonneneinstrahlung tatsächlich auch höhere Temperaturen gemessen werden. Dennoch ist dieser Trend nicht all zu stark, was ich auf die Einwirkung der Atmosphäre zurückführe.
+Regarding the third visualization the solar radiation is located on the x-axis and the temperature can be found on the y-axis. As a hypothesis one can assume that a higher solar radiation leads to higher temperatures. Nonetheless, the values are scattered in the plot, and it is very difficult to get concrete information out of it. Therefore, it is useful to display a trend line, which is not an actual statistical metric but arises out of them such as for example the regression analysis. Anyhow one can record low temperatures measured although the solar radiation measured was high. It can be assumed that this may be an out layer or that the sky was covered by thick clouds. These could have suppressed the potential temperature rise. But considering the trend line it becomes clear that a higher solar radiation favors higher temperatures. 
+
