@@ -37,6 +37,7 @@ ggplot(
   theme_grey()
 
 ```
+
 The first visualization of the dataset shows the daily temperature in the month of May. Looking at the graph, one finds the days in the month may on the x-axis and the temperatures on the y-axis. The temperature is given in Fahrenheit. Furthermore, the average monthly temperature is marked with the black line which is about 65° F. Regarding the statistical metrics used it becomes clear that the visualiza-tion one uses the mean because this metric is well known and already used in meteorological reporting. Additionally, the average temperature can be compared to the average temperatures in other years and trends can be calculated.
 
 Regarding the graph one can notice a trend of warmer temperatures to the end of May. This makes sense because summer will come. Also, one can report temperature fluctuations which is due to a measurement location in the temperate latitudes.  
