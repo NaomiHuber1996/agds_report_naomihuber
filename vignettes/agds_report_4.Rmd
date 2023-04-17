@@ -132,4 +132,3 @@ ggplot(
 theme_classic()
 ```
 Regarding the third visualization the solar radiation is located on the x-axis and the temperature can be found on the y-axis. As a hypothesis one can assume that a higher solar radiation leads to higher temperatures. Nonetheless, the values are scattered in the plot, and it is very difficult to get concrete information out of it. Therefore, it is useful to display a trend line, which is not an actual statistical metric but arises out of them such as for example the regression analysis. Anyhow one can record low temperatures measured although the solar radiation measured was high. It can be assumed that this may be an out layer or that the sky was covered by thick clouds. These could have suppressed the potential temperature rise. But considering the trend line it becomes clear that a higher solar radiation favors higher temperatures. 
-
