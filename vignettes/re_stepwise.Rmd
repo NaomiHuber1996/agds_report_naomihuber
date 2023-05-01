@@ -94,104 +94,114 @@ aic_model6 <- AIC(model6)
 cat("AIC of model 6: ", aic_model6)
 ```
 
-Considering the values of the calculated AIC's, the model 4 provides the most suitable value of about 45682.99 becauses it is the lowest one. According to this result, further steps will be done for the predictor 4.
+Considering the values of the calculated AIC's, the model 4 provides the most suitable value of about 45682.99 becauses it is the lowest one. According to this result, further steps will be done for the predictor 4. Further, we plot a Q-Q-Plot:
+
+```{r}
+plot(model6, 2)
+```
+
 
 To identify the best predictor in the model, it is better to use the stepwise forward regression. In the present case this is done as follows:
 
 ```{r}
-library(tidyverse)
-library(caret)
-library(dplyr)
-library(MASS)
+#predictors: TA_F_MDS, SW_IN_F_MDS, LW_IN_F_MDS, VPD_F_MDS, CO2_F_MDS, PPFD_IN
 
-#doing the stepwise regression
-model_sfr <- lm(GPP_NT_VUT_REF ~ 1, data = daten)
+#modify the data by 
+#modified_data <- subset(daten, select = -c(siteid, TIMESTAMP, TA_F, SW_IN_F, LW_IN_F, VPD_F, PA_F, P_F, WS_F))
+modified_data
 
-final_model <- stepAIC(model_sfr, direction = "forward",
-                      scope = list(upper = ~ TA_F_MDS + SW_IN_F_MDS + LW_IN_F_MDS + VPD_F_MDS + CO2_F_MDS + PPFD_IN),
-                      data = daten)
-summary(final_model)$r.squared
+best_rsquared <- 0 #Speicherung des besten R^2-Wertes
+best_predictor <- "" #Speicherung des besten Prädiktors
 
-AIC(final_model)
+
+for (predictor in names(modified_data)) {
+  formel <- as.formula(paste("GPP_NT_VUT_REF ~", predictor))
+  model <- lm(formel, data = modified_data)
+  r_squared <- summary(model)$r.squared
+  
+  if (r_squared > best_rsquared) {
+    best_rsquared <- r_squared
+    best_predictor <- predictor
+    best_model <- model
+  }
+}
+
+aic <- AIC(best_model)
+
+cat("Bester Predictor: ", best_predictor, "\n")
+cat("Bester R^2: ", best_rsquared, "\n")
+cat("AIC: ", aic, "\n")
 
 ```
 
-Regarding the output of the computation, we assume that all of the predictors influence the GPP-value because every t-value of the predictors is lower than 0.05. If every predictor would be set to 0, we realise that the GPP will be -1.6149567. Furthermore, the multiple-R-squared value is 0.5026 which means that approx. 50.23% of the variation has to be influenced by coincidence. 
+Regarding the output of the computation, we recognise the similarity with the calculated predictors in the previous part of the exercise. Therefore, we can confirm the solutions that the best predictor is "PPFD_IN" and the best R^2 is about 0.3627837. As well the lowest calculated AIC of this stepwise forward regression is the same as predicted in the previous part of the exercise which is about 45682.99 and corresponds to the AIC of model 4.
 
-To get a more complex model of the data, one can add a new predictor:
+To get a more complex model of the data, one can add stepwise new predictors until the AIC will be higher than the previous one:
 
 ```{r}
-#Predictor 1 (CO2_F_MDS)
-model1.1 <- lm(GPP_NT_VUT_REF ~ CO2_F_MDS, data = daten)
-summary(model1.1)$r.squared
-plot(GPP_NT_VUT_REF ~ CO2_F_MDS, data = daten)
-abline(model1.1, col = "red4")
+modified_data
 
-#Predictor 2 (TA_F_MDS)
-model2.2 <- lm(GPP_NT_VUT_REF ~ TA_F_MDS, data = daten)
-summary(model2.2)$r.squared
-plot(GPP_NT_VUT_REF ~ TA_F_MDS, data = daten)
-abline(model2.2, col = "red4")
+abhängige_variable <- which(names(modified_data) == "GPP_NT_VUT_REF")
 
-#Predictor 3 (P_F)
-model3.3 <- lm(GPP_NT_VUT_REF ~ P_F, data = daten)
-summary(model3.3)$r.squared
-plot(GPP_NT_VUT_REF ~ P_F, data = daten)
-abline(model3.3, col = "red4")
+predictors <- setdiff(1:ncol(modified_data), abhängige_variable)
+best_predictor <- "PPFD_IN"
 
-#Predictor 4 (PPFD_IN)
-model4.4 <- lm(GPP_NT_VUT_REF ~ PPFD_IN, data = daten)
-summary(model4.4)$r.squared
-plot(GPP_NT_VUT_REF ~ PPFD_IN, data = daten)
-abline(model4.4, col = "red4")
+results <- list()
 
-#Predictor 5 (SW_IN_F_MDS)
-model5.5 <- lm(GPP_NT_VUT_REF ~ SW_IN_F_MDS, data = daten)
-summary(model5.5)$r.squared
-plot(GPP_NT_VUT_REF ~ SW_IN_F_MDS, data = daten)
-abline(model5.5, col = "red4")
+#Modell mit dem besten Prädiktor
+formel <- as.formula(paste("GPP_NT_VUT_REF ~", best_predictor))
+model <- lm(formel, data = modified_data)
+best_aic <- AIC(model)
+results[[best_predictor]] <- best_aic
 
-#Predictor 6 (LW_IN_F_MDS)
-model6.6 <- lm(GPP_NT_VUT_REF ~ LW_IN_F_MDS, data = daten)
-summary(model6.6)$r.squared
-plot(GPP_NT_VUT_REF ~ LW_IN_F_MDS, data = daten)
-abline(model6.6, col = "red4")
+#Schleife über die Prädiktoren
+for (i in setdiff(predictors, best_predictor)) {
+  predictor <- paste0("predictor", i)
+  formel <- as.formula(paste("GPP_NT_VUT_REF ~", paste0(best_predictor, "+", names(modified_data)[i]), collapse = ""))
+  model <- lm(formel, data = modified_data)
+  aic <- AIC(model)
+  results[[predictor]] <- aic
+  
+  if(aic > best_aic) {
+    break
+  } else {
+    best_aic <- aic
+  }
+}
 
-#Predictor 7 (USTAR)
-model7.7 <- lm(GPP_NT_VUT_REF ~ USTAR, data = daten)
-summary(model7.7)$r.squared
-plot(GPP_NT_VUT_REF ~ USTAR, data = daten)
-     abline(model7.7, col = "red4")
+print(results)
+
+#Herausfinden, was $predictor1 für ein Prädiktor ist
+index_predictor1 <- 1
+spaltenname_predictor1 <- names(modified_data)[predictors[index_predictor1]]
+print(spaltenname_predictor1)
+
+#Herausfinden, was $predictor2 für ein Prädikator ist
+index_predictor2 <- 2
+spaltenname_predictor2 <- names(modified_data)[predictors[index_predictor2]]
+print(spaltenname_predictor2)
+
 ```
+Regarding the calculated AIC-values it becomes clear that the single predictor "PPFD_IN" is not the most precise one. To get a better result, the predictor "TA_F_MDS" and "SW_IN_F_MDS" in combination with "PPFD_IN" are influencing the dependent variable "GPP_NT_VUT_REF". Regarding the theories about the GPP_NT_VUT_REF this makes sense because the shortwave_radiation influences as well as the temperature contribute to the growth of plants and their total amount of carbon dioxide fixation. Nevertheless, the shortwave-radiation does not influence the GPP that much as the TA_F_MDS and provides an higher AIC which means that the dependent variable GPP_NT_VUT_REF is influenced by PPFD_IN and TA_F_MDS in combination.
 
+The following plot provides an easier interpretation of these results:
 ```{r}
-aic_model1.1 <- AIC(model1.1)
-cat("AIC of model 1.1: ",aic_model1.1, "\n")
+#Säulendiagramm
+library(ggplot2)
+results_exercise <- data.frame(Predictor = names(results), AIC = unlist(results))
+#rename the $predictor1
+results_exercise$Predictor <- ifelse(results_exercise$Predictor == "predictor1", "TA_F_MDS (Predictor 1)", results_exercise$Predictor)
+#rename the $predictor2
+results_exercise$Predictor <- ifelse(results_exercise$Predictor == "predictor2", "SW_IN_F_MDS (Predictor 2)", results_exercise$Predictor)
+results_exercise
 
-aic_model2.2 <- AIC(model2.2)
-cat("AIC of model 2.2: ", aic_model2.2, "\n")
+p <- ggplot(results_exercise, aes(x = Predictor, y = AIC)) +
+  geom_bar(stat = "identity", fill = "yellow3") +
+  xlab("Predictor") +
+  ylab("AIC") +
+  ggtitle("AIC für hinzugefügte Prädikatoren")
+print(p)
 
-aic_model3.3 <- AIC(model3.3)
-cat("AIC of model 3.3: ", aic_model3.3, "\n")
-
-aic_model4.4 <- AIC(model4.4)
-cat("AIC of model 4.4: ", aic_model4.4, "\n")
-
-aic_model5.5 <- AIC(model5.5)
-cat("AIC of model 5.5: ", aic_model5.5, "\n")
-
-aic_model6.6 <- AIC(model6.6)
-cat("AIC of model 6.6: ", aic_model6.6, "\n")
-
-aic_model7.7 <- AIC(model7.7)
-cat("AIC of model 7.7: ", aic_model7.7, "\n")
-
-cat("Minimum: ", min(c(aic_model1.1, aic_model2.2, aic_model3.3, aic_model4.4, aic_model5.5, aic_model6.6, aic_model7.7)))
 ```
-As the AIC of the model 7.7 (predictor USTAR) is higher than the one of the model with p = 1 predictors, the model with p predictors is the optimal model.
-
-```{r}
-model_np <- lm(GPP_NT_VUT_REF ~ TA_F_MDS + SW_IN_F_MDS + LW_IN_F_MDS + VPD_F_MDS + CO2_F_MDS + PPFD_IN + USTAR , data = daten)
-summary(model_np)$r.squared
-```
+The plot shows exactly these results by having a higher bar of the predictor 2 (SW_IN_F_MDS). Therefore, only the combination of the PPFD_IN and the TA_F_MDS (Predictor 1) provides a more precise result.
 
