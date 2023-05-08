@@ -104,8 +104,6 @@ plot(model6, 2)
 To identify the best predictor in the model, it is better to use the stepwise forward regression. In the present case this is done as follows:
 
 ```{r}
-#predictors: TA_F_MDS, SW_IN_F_MDS, LW_IN_F_MDS, VPD_F_MDS, CO2_F_MDS, PPFD_IN
-
 #modify the data by 
 #modified_data <- subset(daten, select = -c(siteid, TIMESTAMP, TA_F, SW_IN_F, LW_IN_F, VPD_F, PA_F, P_F, WS_F))
 modified_data
