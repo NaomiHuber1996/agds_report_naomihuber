@@ -1,8 +1,8 @@
 ---
-title: "re_ml_01"
+title: "Report Exercise Chapter 9"
 author: "Naomi Huber"
-date: "2023-05-01"
 output: html_document
+toc: true
 ---
 
 ## Load data
@@ -42,6 +42,15 @@ daily_fluxes <- read_csv("https://raw.githubusercontent.com/geco-bern/agds/main/
   # drop QC variables
   dplyr::select(-ends_with("_QC"))
 ```
+## Data Cleaning
+```{r}
+# Data cleaning: looks ok, no obviously bad data
+# no long tail, therefore no further target engineering
+daily_fluxes |> 
+  ggplot(aes(x = GPP_NT_VUT_REF, y = ..count..)) + 
+  geom_histogram()
+```
+
 
 ## Split data 
 For the calculations, the data has to be splitted into testing data and into trainings data.
@@ -91,13 +100,13 @@ mod_knn <- caret::train(
 ```
 
 ```{r}
-evalmodel <- source("https://raw.githubusercontent.com/NaomiHuber1996/agds_report_naomihuber/main/vignettes/re_ml_01_functions/function_evalmodel.R")
+source("https://raw.githubusercontent.com/NaomiHuber1996/agds_report_naomihuber/main/vignettes/re_ml_01_functions/function_evalmodel.R")
 ```
-
 
 ## Visualizations
 ```{r}
 library(ggplot2)
+library(tidyr)
 # linear regression model
 eval_model(mod = mod_lm, df_train = daily_fluxes_train, df_test = daily_fluxes_test)
 
@@ -105,3 +114,29 @@ eval_model(mod = mod_lm, df_train = daily_fluxes_train, df_test = daily_fluxes_t
 eval_model(mod = mod_knn, df_train = daily_fluxes_train, df_test = daily_fluxes_test)
 ```
 
+## Interpretation of the observed differences in the context of the bias-variance trade-off
+#### Why is the difference between the evaluation on the training and the test set larger for the KNN model than for the linear regression model?
+The difference between the evaluation of the training and the test set ist the "overfitting". This means, that a model is complex and matches too much with the training data. The generalization of the new data is thus poor. The KNN model is non-parametric and can overfit to the training data when the number of the neighbours is too small and therefore the new data can only be badly performed. The linear regression model is a parametric model and is therefore less likely to overfit. The larger the difference between the evaluation of the two set may be because of the higher tendency to overfit. 
+
+#### Why does the evaluation on the test set indicate a better model performance of the KNN model than the linear regression model?
+The KNN model can better take up nonlinear relationships between the feature and the traget variable. The linear regression model makes a linear relationship between the feature and the traget variable. When the real relatioinship between the feature and the target variable is nonlinear, the KNN is better and makes more accurate predictions in the test set.
+
+#### How would you position the KNN and the linear regression model along the spectrum of the bias-variance trade-off?
+The KNN has a high variance and a low bias. The reason is because the KNN is sensitive to noise and can overfit the training data. When k decreases, the model becomes more complex and has a high variance.
+The linear regression has a low variance and a high bias. This is because it is a linear model and therefore also the relationship between the variables is linear. 
+
+## Visualization of the temporal variations of observed and modelled GPP for both models
+????
+
+
+## The role of k
+#### Based on the understanding of KNN, state a hypothesis for how R^2 and the MAE evaluated on the test and on the training set would change for k approaching 1 and for k approaching N. 
+If k approaches to 1, the model becomes more flexible and the variance increases. But this may also lead to overfitting to the data and the generalization will be poor. Therefore, the R^2 will be lower and the MAE will be higher on the test set compared to the training set. If k approaches to N, the model is less flexible and will maybe underfit. This means that the R^2 will be high and the MAE will be low in the training and the test set. To get the best result, k must be somewhere in the middle where also the bias-variance trade-off will be balanced.
+
+#### Put the hypothesis to the test. Write a code that splits the data into a training and a test set and repeats model fitting and evaluation for different values for k: Visualise results, showing model generalisability as a function of model complexityy. Describe how a "region" of overfitting and underfitting can be determined in the visualisation. Write code into a function that takes k as an input and returns the MAE determined on the test set.
+```{r}
+
+```
+
+#### Is there an "optimal" k in terms of model generalisability?
+Yes. ????
