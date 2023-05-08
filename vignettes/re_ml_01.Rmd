@@ -44,6 +44,7 @@ daily_fluxes <- read_csv("https://raw.githubusercontent.com/geco-bern/agds/main/
 ```
 ## Data Cleaning
 ```{r}
+library(ggplot2)
 # Data cleaning: looks ok, no obviously bad data
 # no long tail, therefore no further target engineering
 daily_fluxes |> 
@@ -169,8 +170,59 @@ If k approaches to 1, the model becomes more flexible and the variance increases
 
 #### Put the hypothesis to the test. Write a code that splits the data into a training and a test set and repeats model fitting and evaluation for different values for k: Visualise results, showing model generalisability as a function of model complexityy. Describe how a "region" of overfitting and underfitting can be determined in the visualisation. Write code into a function that takes k as an input and returns the MAE determined on the test set.
 ```{r}
+library(datasets)
+library(caret)
+library(ggplot2)
 
+#load the data
+daily_fluxes <- na.omit(daily_fluxes)
+
+#splitting the data
+set.seed(123)
+index <- createDataPartition(y = daily_fluxes$VPD_F, p = 0.7, list = FALSE)
+train <- daily_fluxes[index, ]
+test <- daily_fluxes[-index, ]
+
+#k values to test
+k_values <- seq(1, 40)
+
+#training and evaluation of KNN- and regression-model for each k 
+source("https://raw.githubusercontent.com/NaomiHuber1996/agds_report_naomihuber/main/vignettes/re_ml_01_functions/function_mae.R")
+
+#visualisation of the results
+plot(k_values, mae, type = "b", col = "blue", xlab = "Number of neighbors (k)", ylab = "MAE", main = "Model Generalization")
+lines(k_values, mae, type = "b", col = "red")
+legend("top", c("Training MAE", "Test MAE"), col = c("blue", "red"), lty = 1, cex = 0.8)
+
+#determination the region of overfitting and underfitting
+min_mae <- min(mae)
+optimal_k <- k_values[which.min(mae)]
+upper_bound <- min_mae + 0.05 * min_mae
+lower_bound <- min_mae + 0.2 * min_mae
+overfitting_k <- k_values[mae < upper_bound]
+underfitting_k <- k_values[mae > lower_bound]
+points(overfitting_k, mae[overfitting_k], pch = 4, col = "orange")
+points(underfitting_k, mae[underfitting_k], pch = 4, col = "purple")
 ```
 
 #### Is there an "optimal" k in terms of model generalisability?
-Yes. ????
+Yes. As seen on the graph the optimal k is smaller than 10 and higher than 0. To get the best k out of the graph, it is best to zoom in as follows:
+```{r}
+#k values to test putting to 10, because k should be smaller than 10
+k_values <- seq(1, 10)
+
+#training and evaluation of KNN- and regression-model for each k 
+source("https://raw.githubusercontent.com/NaomiHuber1996/agds_report_naomihuber/main/vignettes/re_ml_01_functions/function_mae.R")
+
+#visualisation of the results
+plot(k_values, mae, type = "b", col = "blue", xlab = "Number of neighbors (k)", ylab = "MAE", main = "Model Generalization")
+lines(k_values, mae, type = "b", col = "red")
+legend("top", c("Training MAE", "Test MAE"), col = c("blue", "red"), lty = 1, cex = 0.8)
+```
+Regarding the graph now, we can assume that the optimal k in our data is 4, because it is the lowest one. Furthermore, we can write a code to determine the best k-value:
+```{r}
+best_k <- k_values[which.min(mae)]
+best_k
+```
+
+The result verifies out asumption of the best k-value which is about 4.
