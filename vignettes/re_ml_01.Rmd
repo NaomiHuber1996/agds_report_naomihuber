@@ -126,7 +126,41 @@ The KNN has a high variance and a low bias. The reason is because the KNN is sen
 The linear regression has a low variance and a high bias. This is because it is a linear model and therefore also the relationship between the variables is linear. 
 
 ## Visualization of the temporal variations of observed and modelled GPP for both models
-????
+```{r}
+library(ggplot2)
+library(dplyr)
+
+#prediction of GPP for the test data using both models
+daily_fluxes_test_lm <- mutate(daily_fluxes_test,
+                               GPP_NT_VUT_REF_predicted = predict(mod_lm, newdata = daily_fluxes_test))
+
+daily_fluxes_test <- na.omit(daily_fluxes_test)
+
+daily_fluces_test_knn <- mutate(daily_fluxes_test, 
+                                GPP_NT_VUT_REF_predicted = predict(mod_knn, newdata = daily_fluxes_test))
+
+observed_redicted_lm <- daily_fluxes_test_lm |>
+  dplyr::select(TIMESTAMP, GPP_NT_VUT_REF, GPP_NT_VUT_REF_predicted) |>
+  dplyr::rename(Model_lr = "GPP_NT_VUT_REF_predicted") |>
+  dplyr::mutate(Model_lr = "Linear Regeression")
+
+observed_redicted_knn <- daily_fluces_test_knn |>
+  dplyr::select(TIMESTAMP, GPP_NT_VUT_REF, GPP_NT_VUT_REF_predicted) |>
+  dplyr::rename(Model_knn = "GPP_NT_VUT_REF_predicted") |>
+  dplyr::mutate(Model_knn = "KNN")
+
+observed_predictions_combination <- left_join(observed_redicted_lm, observed_redicted_knn, by = "TIMESTAMP") |>
+  dplyr::select(-GPP_NT_VUT_REF.y)
+
+#plot it
+ggplot(observed_predictions_combination, aes(x = TIMESTAMP, y = GPP_NT_VUT_REF.x, color = Model_lr)) +
+  geom_line() +
+  geom_line(aes(x = TIMESTAMP, y = GPP_NT_VUT_REF.x, color = Model_knn)) +
+  scale_color_manual(values = c("blue", "red")) + 
+  theme_bw()
+
+```
+Unfortunately we can only see the line of the first model mentioned, because the two lines are approximately identical on this scale.
 
 
 ## The role of k
