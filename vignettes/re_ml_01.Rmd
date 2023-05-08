@@ -1,0 +1,178 @@
+---
+title: "re_ml_01"
+author: "Naomi Huber"
+date: "2023-05-01"
+output: html_document
+---
+
+#Reading the data, selecting the suitable variables, interpretation of missing value codes and selection of only good-quality data
+```{r}
+#install.packages(lubridate)
+#install.packages("dplyr")
+library(lubridate)
+library(dbplyr)
+daily_fluxes <- read.csv("https://raw.githubusercontent.com/geco-bern/agds/main/data/FLX_CH-Dav_FLUXNET2015_FULLSET_DD_1997-2014_1-3.csv", header = TRUE, sep = ",") 
+
+daily_fluxes_2 <- daily_fluxes %>%
+  dplyr::select(TIMESTAMP, GPP_NT_VUT_REF, ends_with("_QC"), ends_with("_F"), -contains("JSB")) %>%
+  dplyr::mutate(TIMESTAMP = ymd(TIMESTAMP)) %>%
+  dplyr::mutate(across(where(is.numeric), ~dplyr::na_if(., -9999))) %>%
+  dplyr::mutate(GPP_NT_VUT_REF = ifelse(NEE_VUT_REF_QC < 0.8, NA, TA_F),
+         TA_F = ifelse(TA_F_QC < 0.8, NA, TA_F),
+         SW_IN_F = ifelse(SW_IN_F_QC < 0.8, NA, SW_IN_F),
+         LW_IN_F = ifelse(LW_IN_F_QC < 0.8, NA, LW_IN_F),
+         VPD_F = ifelse(VPD_F_QC < 0.8, NA, VPD_F),
+         PA_F = ifelse(PA_F_QC < 0.8, NA, PA_F),
+         P_F = ifelse(P_F_QC < 0.8, NA, P_F),
+         WS_F = ifelse(WS_F_QC < 0.8, NA, WS_F)) %>%
+  dplyr::select(-ends_with("_QC"))
+daily_fluxes_2
+```
+
+#Formula notation
+```{r}
+lm(GPP_NT_VUT_REF ~ SW_IN_F + VPD_F + TA_F, data = daily_fluxes_2)
+```
+
+#the generic train()
+```{r}
+library(caret)
+library(ggplot2)
+
+daily_fluxes_2 <- na.omit(daily_fluxes_2)
+
+caret::train(
+  form = GPP_NT_VUT_REF ~ SW_IN_F + VPD_F + TA_F,
+  data = daily_fluxes_2, 
+  trControl = caret::trainControl(method = "none"),
+  method = "lm"
+)
+```
+#usage of KNN
+```{r}
+library(caret)
+
+daily_fluxes_2 <- na.omit(daily_fluxes_2)
+
+caret::train(
+  form = GPP_NT_VUT_REF ~ SW_IN_F + VPD_F + TA_F,
+  data = daily_fluxes_2, 
+  trControl = caret::trainControl(method = "none"),
+  method = "knn"
+)
+```
+
+#data splitting for testing
+```{r}
+set.seed(123)
+split <- rsample::initial_split(daily_fluxes_2, prop = 0.7, strata = "VPD_F")
+daily_fluxes_2_train <- rsample::training(split)
+daily_fluxes_2_test <- rsample::testing(split)
+
+
+#Plot de distribution of the values in the training and the testing
+plot_data <- daily_fluxes_2_train |>
+  dplyr::mutate(split = "train") |>
+  dplyr::bind_rows(daily_fluxes_2_test |>
+  dplyr::mutate(split = "test")) |>
+  tidyr::pivot_longer(cols = 2:9, names_to = "variable", values_to = "value")
+
+plot_data |>
+  ggplot(aes(x = value, y = after_stat(density), color = split)) +
+  geom_density() + 
+  facet_wrap(~variable, scales = "free")
+```
+#pre-processing
+```{r}
+pp <- recipes::recipe(GPP_NT_VUT_REF ~ SW_IN_F + VPD_F + TA_F, data = daily_fluxes_2_train) %>%
+  recipes::step_center(all_numeric(), -all_outcomes()) %>%
+  recipes::step_scale(all_numeric(), -all_outcomes())
+pp
+```
+For the model, we use the variables "SW_IN_F", "VPD_F" and "TA_F".
+
+
+```{r}
+#definition of the formula for the linear regression model
+formula <- formula(GPP_NT_VUT_REF ~ SW_IN_F + VPD_F + TA_F)
+#application on the trainings data
+pp_train <- prep(pp, training = daily_fluxes_2_train)
+#adjustion of the model on the trainings data
+lm_model <- lm(formula, data = bake(pp_train, new_data = NULL))
+#application on the testing data
+pp_test <- prep(pp, new_data = daily_fluxes_2_test)
+#evaluation of the model on the testing data
+lm_pred <- predict(lm_model, newdata = bake(pp_test, new_data = NULL))
+```
+
+
+```{r}
+library(recipes)
+caret::train(
+  pp,
+  data = daily_fluxes_2_train,
+  method = "knn",
+  trControl = caret::trainControl(method = "none")
+)
+```
+
+
+
+#standardization
+```{r}
+library(tibble)
+daily_fluxes_2 %>%
+  dplyr::summarise(across(where(is.numeric), ~quantile(.x, probs = c(0, 0.25, 0.5, 0.75, 1), na.rm = TRUE))) %>%
+  t() |>
+  as_tibble(rownames = "variable") %>%
+  setNames(c("variable", "min", "q25", "q50", "q75", "max"))
+```
+
+#preparation of the recipe
+```{r}
+pp_prep <- recipes::prep(pp, training = daily_fluxes_2_train)
+```
+
+#transformation of the data
+```{r}
+daily_fluxes_juiced <- recipes::juice(pp_prep)
+daily_fluxes_baked <- recipes::bake(pp_prep, new_data = daily_fluxes_2_train)
+all_equal(daily_fluxes_juiced, daily_fluxes_baked)
+```
+
+#preparation of the data to plot it
+```{r}
+plot_data_original <- daily_fluxes_2_train %>%
+  dplyr::select(one_of(c("SW_IN_F", "VPD_F", "TA_F"))) %>%
+  tidyr::pivot_longer(cols = c(SW_IN_F, VPD_F, TA_F), names_to = "var", values_to = "val")
+
+plot_data_juiced <- daily_fluxes_juiced %>%
+  dplyr::select(one_of(c("SW_IN_F", "VPD_F", "TA_F"))) %>%
+  tidyr::pivot_longer(cols = c(SW_IN_F, VPD_F, TA_F), names_to = "var", values_to = "val")
+
+plot1 <- ggplot(data = plot_data_original, aes(val, after_stat(density))) +
+                  geom_density() +
+                  facet_wrap(~var)
+
+plot2 <- ggplot(data = plot_data_juiced, aes(val, after_stat(density))) +
+  geom_density() +
+  facet_wrap(~var)
+
+cowplot::plot_grid(plot1, plot2, nrow = 2)
+```
+
+#visualization of missing data
+```{r}
+visdat::vis_miss(
+  daily_fluxes_2,
+  cluster = FALSE,
+  warn_large_data = FALSE
+)
+```
+As we can see, the variable "LW_IN_F" is affected by missing a lot of data. Thus, we replace this missing data with a "best guess" value which must be implemented with the function step_impute_*().
+
+
+```{r}
+
+```
+
