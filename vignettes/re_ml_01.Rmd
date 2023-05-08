@@ -6,12 +6,11 @@ output: html_document
 ---
 
 ## Load data
-Reading the data, selecting the suitable variables, interpretation of missing value codes and selection of only good-quality data
+Reading the data, selecting the suitable variables, interpretation of missing value codes and selection of only good-quality data.
 ```{r}
-#install.packages(lubridate)
-#install.packages("dplyr")
 library(lubridate)
-library(dbplyr)
+library(dplyr)
+library(readr)
 
 daily_fluxes <- read_csv("https://raw.githubusercontent.com/geco-bern/agds/main/data/FLX_CH-Dav_FLUXNET2015_FULLSET_DD_1997-2014_1-3.csv") |>  
   
@@ -45,7 +44,7 @@ daily_fluxes <- read_csv("https://raw.githubusercontent.com/geco-bern/agds/main/
 ```
 
 ## Split data 
-for the calculations, I have to split the data into testing data and into trainings data
+For the calculations, the data has to be splitted into testing data and into trainings data.
 ```{r}
 set.seed(1982)
 split <- rsample::initial_split(daily_fluxes, prop = 0.7, strata = "VPD_F")
@@ -54,8 +53,10 @@ daily_fluxes_test <- rsample::testing(split)
 ```
 
 ## Specify model
-model and pre-processing formulation incl. drop of LW_IN_F
+The steps above are followed by model and pre-processing formulation incl. drop of LW_IN_F:
 ```{r}
+library(tidyr)
+
 pp <- recipes::recipe(GPP_NT_VUT_REF ~ SW_IN_F + VPD_F + TA_F, 
                       data = daily_fluxes_train |> drop_na()) |> 
   #recipes::step_BoxCox(all_predictors()) |> 
@@ -64,8 +65,9 @@ pp <- recipes::recipe(GPP_NT_VUT_REF ~ SW_IN_F + VPD_F + TA_F,
 ```
 
 ## Fit regression model
-fit the linear regression model
+As a next step follows the formulation of the linear regression model:
 ```{r}
+library(recipes)
 mod_lm <- caret::train(
   pp, 
   data = daily_fluxes_train |> drop_na(), 
@@ -76,7 +78,7 @@ mod_lm <- caret::train(
 ```
 
 ## Fit the KNN model
-fit the knn model
+And then the formulation of the KNN-model:
 ```{r}
 mod_knn <- caret::train(
   pp, 
@@ -88,17 +90,18 @@ mod_knn <- caret::train(
 )
 ```
 
-## Function for creating the model evaluation
 ```{r}
-eval.model <- source("https://raw.githubusercontent.com/NaomiHuber1996/agds_report_naomihuber/main/vignettes/re_ml_01_functions/function_evalmodel.R")
+evalmodel <- source("https://raw.githubusercontent.com/NaomiHuber1996/agds_report_naomihuber/main/vignettes/re_ml_01_functions/function_evalmodel.R")
 ```
+
 
 ## Visualizations
 ```{r}
+library(ggplot2)
 # linear regression model
 eval_model(mod = mod_lm, df_train = daily_fluxes_train, df_test = daily_fluxes_test)
 
 # KNN
-eval_model(mod = mod_lm, df_train = daily_fluxes_train, df_test = daily_fluxes_test)
+eval_model(mod = mod_knn, df_train = daily_fluxes_train, df_test = daily_fluxes_test)
 ```
 
