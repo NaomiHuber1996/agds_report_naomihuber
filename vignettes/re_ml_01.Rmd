@@ -188,7 +188,7 @@ test <- daily_fluxes[-index, ]
 k_values <- seq(1, 40)
 
 #training and evaluation of KNN- and regression-model for each k 
-source("https://raw.githubusercontent.com/NaomiHuber1996/agds_report_naomihuber/main/vignettes/re_ml_01_functions/function_evalmodel.R")
+source("https://raw.githubusercontent.com/NaomiHuber1996/agds_report_naomihuber/main/vignettes/re_ml_01_functions/function_mae.R")
 
 #visualisation of the results
 plot(k_values, mae, type = "b", col = "blue", xlab = "Number of neighbors (k)", ylab = "MAE", main = "Model Generalization")
