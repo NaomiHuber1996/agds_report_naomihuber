@@ -11,10 +11,10 @@ eval_model <- function(mod, df_train, df_test){
   
   # get metrics tables
   metrics_train <- df_train |> 
-    yardstick::metrics(GPP_NT_VUT_REF, df_train$fitted)
+    yardstick::metrics(GPP_NT_VUT_REF, fitted)
   
   metrics_test <- df_test |> 
-    yardstick::metrics(GPP_NT_VUT_REF, df_test$fitted)
+    yardstick::metrics(GPP_NT_VUT_REF, fitted)
   
   # extract values from metrics tables
   rmse_train <- metrics_train |> 
@@ -33,7 +33,7 @@ eval_model <- function(mod, df_train, df_test){
   
   # visualise as a scatterplot
   # adding information of metrics as sub-titles
-  plot_1 <- ggplot(data = df_train, aes(GPP_NT_VUT_REF, df_train$fitted)) +
+  plot_1 <- ggplot(data = df_train, aes(GPP_NT_VUT_REF, fitted)) +
     geom_point(alpha = 0.3) +
     geom_smooth(method = "lm", se = FALSE, color = "red") +
     geom_abline(slope = 1, intercept = 0, linetype = "dotted") +
@@ -42,7 +42,7 @@ eval_model <- function(mod, df_train, df_test){
          title = "Training set") +
     theme_classic()
   
-  plot_2 <- ggplot(data = df_test, aes(GPP_NT_VUT_REF, df_test$fitted)) +
+  plot_2 <- ggplot(data = df_test, aes(GPP_NT_VUT_REF, fitted)) +
     geom_point(alpha = 0.3) +
     geom_smooth(method = "lm", se = FALSE, color = "red") +
     geom_abline(slope = 1, intercept = 0, linetype = "dotted") +
@@ -55,3 +55,4 @@ eval_model <- function(mod, df_train, df_test){
   
   return(out)
 }
+
