@@ -28,7 +28,7 @@ daily_fluxes <- read_csv("https://raw.githubusercontent.com/geco-bern/agds/main/
   # set all -9999 to NA
   mutate(across(where(is.numeric), ~na_if(., -9999))) |>
   
-  # retain only data based on >=80% good-quality measurements
+  # and retain only data based on >=80% good-quality measurements
   # overwrite bad data with NA (not dropping rows)
   dplyr::mutate(GPP_NT_VUT_REF = ifelse(NEE_VUT_REF_QC < 0.8, NA, GPP_NT_VUT_REF),
                 TA_F           = ifelse(TA_F_QC        < 0.8, NA, TA_F),
@@ -114,6 +114,7 @@ eval_model(mod = mod_lm, df_train = daily_fluxes_train, df_test = daily_fluxes_t
 # KNN
 eval_model(mod = mod_knn, df_train = daily_fluxes_train, df_test = daily_fluxes_test)
 ```
+Unfortunately, I have always the following error message which shows up if I did not clean the History in the environment area: "Error in modelFit$problemType : $ operator is invalid for atomic vectors".
 
 ## Interpretation of the observed differences in the context of the bias-variance trade-off
 #### Why is the difference between the evaluation on the training and the test set larger for the KNN model than for the linear regression model?
@@ -187,7 +188,7 @@ test <- daily_fluxes[-index, ]
 k_values <- seq(1, 40)
 
 #training and evaluation of KNN- and regression-model for each k 
-source("https://raw.githubusercontent.com/NaomiHuber1996/agds_report_naomihuber/main/vignettes/re_ml_01_functions/function_mae.R")
+source("https://raw.githubusercontent.com/NaomiHuber1996/agds_report_naomihuber/main/vignettes/re_ml_01_functions/function_evalmodel.R")
 
 #visualisation of the results
 plot(k_values, mae, type = "b", col = "blue", xlab = "Number of neighbors (k)", ylab = "MAE", main = "Model Generalization")
