@@ -487,16 +487,16 @@ model:</p>
 </div>
 <div id="visualizations" class="section level2">
 <h2>Visualizations</h2>
-<pre class="r"><code>#library(ggplot2)
-#library(tidyr)
+<pre class="r"><code>library(ggplot2)
+library(dplyr)
 # linear regression model
 #eval_model(mod = mod_lm, df_train = daily_fluxes_train, df_test = daily_fluxes_test)
 
 # KNN
 #eval_model(mod = mod_knn, df_train = daily_fluxes_train, df_test = daily_fluxes_test)</code></pre>
 <p>Unfortunately, I have always the following error message which shows
-up if I did not clean the History in the environment area: “Error in
-modelFit$problemType : $ operator is invalid for atomic vectors”.</p>
+up if I want to knit this code. In the .Rmd file it works but I cannot
+transform it into a .html-file.</p>
 </div>
 <div id="interpretation-of-the-observed-differences-in-the-context-of-the-bias-variance-trade-off" class="section level2">
 <h2>Interpretation of the observed differences in the context of the
@@ -545,18 +545,23 @@ GPP for both models</h2>
 #plotfunction &lt;- function(mod, df_test) {
 
 #df_test_new &lt;- df_test |&gt; 
-#  drop_na()
-#
+  #drop_na()
+
 #df_test_new$fitted &lt;- predict(mod, newdata = df_test_new)
 
 #tabelle &lt;- tibble(&quot;Timestamp&quot; = df_test$TIMESTAMP,
-#                  &quot;Difference&quot; = df_test$GPP_NT_VUT_REF - df_test_new$fitted)
+               #   &quot;Difference&quot; = df_test$GPP_NT_VUT_REF - df_test_new$fitted)
 #return(tabelle)
 #}
 
 #visualization &lt;- plotfunction(mod_knn, df_test = daily_fluxes_test)</code></pre>
+<p>Unfortunately, I had as well the problem that I could not knit this
+code because of an error message which I could not identify after
+several hours. Thus, I knit it with hashtag-symbols in front to show
+you, that I can run the code on my laptop, but I cannot knit it to an
+html-file.</p>
 <pre class="r"><code>#ggplot(data = visualization) +
- #        geom_line(aes(x = Timestamp, y = Difference)) </code></pre>
+        # geom_line(aes(x = Timestamp, y = Difference)) </code></pre>
 </div>
 <div id="the-role-of-k" class="section level2">
 <h2>The role of k</h2>
@@ -587,15 +592,15 @@ library(caret)</code></pre>
 <pre><code>## Loading required package: lattice</code></pre>
 <pre class="r"><code>k_values &lt;- seq(1, 50, by = 1)
 
-# Definieren Sie die Vektoren, um RMSE-Werte für Schulungs- und Testdaten zu speichern
+# definition of the vectors for saving RMSE-values 
 train_rmse_values &lt;- rep(NA, length(k_values))
 test_rmse_values &lt;- rep(NA, length(k_values))
 
-# Iterieren Sie über jedes k und passen Sie das Modell an die Trainings- und Testdaten an
+# iterating over k
 for (i in seq_along(k_values)) {
   k &lt;- k_values[i]
   
-  # Passen Sie das Modell an den Schulungsdaten an und speichern Sie den RMSE-Wert
+  # adjust the model to the training data and saving the RMSE-value
   mod_knn_train &lt;- caret::train(
     pp, 
     data = daily_fluxes_train |&gt; drop_na(), 
@@ -606,7 +611,7 @@ for (i in seq_along(k_values)) {
   )
   train_rmse_values[i] &lt;- mod_knn_train$results$RMSE
   
-  # Passen Sie das Modell an den Testdaten an und speichern Sie den RMSE-Wert
+  # adjust the model to the test data and saving the RMSE-value
   mod_knn_test &lt;- caret::train(
     pp, 
     data = daily_fluxes_test |&gt; drop_na(), 
@@ -618,7 +623,7 @@ for (i in seq_along(k_values)) {
   test_rmse_values[i] &lt;- mod_knn_test$results$RMSE
 }
 
-# Finden Sie das k, das den niedrigsten Test-RMSE-Wert aufweist
+# k with the best RMSE-value
 best_k &lt;- k_values[which.min(test_rmse_values)]
 cat(&quot;The best k-value is: &quot;, best_k)</code></pre>
 <pre><code>## The best k-value is:  34</code></pre>
@@ -627,8 +632,8 @@ adding of a line into the plot. The region which is underfitting can be
 determined when the model has a high training and high testing error.
 The region which is overfitting can be found by a extremely low training
 but a high testing error. Regarding our example, the region which is
-underfitting is for example all of the k under 26 (best_k-value) and
-overfitting is the region with k higher than 26 (where the model fits
+underfitting is for example all of the k under 34 (best_k-value) and
+overfitting is the region with k higher than 34 (where the model fits
 too closely).</p>
 </div>
 <div id="is-there-an-optimal-k-in-terms-of-model-generalisability" class="section level4">
