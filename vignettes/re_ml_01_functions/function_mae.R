@@ -1,4 +1,4 @@
-mae <- test_mae <- numeric(length(k_values))
+mae <- numeric(length(k_values))
 for (k in k_values) {
   # fit the model on training data
   model <- train(VPD_F ~ ., method = "knn", trControl = trainControl(method = "none"), tuneGrid = data.frame(k = k), data = train)
