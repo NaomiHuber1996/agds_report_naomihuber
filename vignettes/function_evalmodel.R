@@ -1,4 +1,4 @@
-eval_model <- function(mod, df_train, df_test, label=NULL){
+eval_model <- function(mod, df_train, df_test, label=NULL, label2=NULL){
   
   # add predictions to the data frames
   df_train <- df_train |> 
@@ -48,7 +48,7 @@ eval_model <- function(mod, df_train, df_test, label=NULL){
     geom_abline(slope = 1, intercept = 0, linetype = "dotted") +
     labs(subtitle = bquote( italic(R)^2 == .(format(rsq_test, digits = 2)) ~~
                               RMSE == .(format(rmse_test, digits = 3))),
-         title = paste("Test set", label)) +
+         title = paste("Test set", label2)) +
     theme_classic()
   
   out <- cowplot::plot_grid(plot_1, plot_2)
