@@ -1,0 +1,63 @@
+---
+title: "agds_report_01"
+author: "Naomi Huber"
+date: "2023-05-15"
+output: html_document
+---
+
+## Dimensions of a circle
+```{r}
+r <- 4
+
+a <- as.character((r**2)*pi)
+circumference <- as.character(2*r*(pi**2))
+
+print(c(a, circumference))
+```
+My code defines that r saves the number 4. Afterwards, I save in the variable a the code as.character((r**2)*pi) which is basically the calculation formula for the calculation of a circle area. I save also the calculation of the circumference in the variable circumference. Then i print the vector a (which saves the calculated area) and the circumference of this circle. 
+
+## Sequence of numbers
+```{r}
+x <- c(seq(from = 0, to = pi, length.out = 5))
+
+cat("A sequence of numbers from 0 to Pi: ", x, sep = " / ")
+```
+In the calculation above I saved a sequence of numbers from 0 to Pi in the variable x. Then I printed a sentence with the five possible solutions which have all the same difference.
+
+## Gauss sum
+```{r}
+x <- c(seq(from = 1, to = 100))
+y <- c(seq(from = 100, to = 1))
+
+new_vector <- x+y
+fifty <- length(x+y)/2
+
+cat("The Gauss sum is: ", new_vector[1]*fifty)
+```
+In this code I defined two variables (x and y) which save two sequences of numbers each. The variable x saves all the numbers from 1 to 100 and y saves all the numbers (downwards) from 100 to 1. Then I calculate the Gauss sum with new_vector and fifty (variables). 
+
+## Magic trick algorithm
+```{r}
+x <- as.integer(5)
+x1 <- x
+x <- x + 1
+x <- x * 2
+x <- x1 + 4
+x <- x1/2
+x - x1
+```
+I overwrote x and changed it's value.
+
+
+## Vectors
+```{r}
+datasets::rivers
+class <- class(datasets::rivers)
+length <- length(datasets::rivers)
+mean <- mean(datasets::rivers)
+median <- median(datasets::rivers)
+minimum <- min(datasets::rivers)
+maximum <- max(datasets::rivers)
+```
+
+I opened the object dataset::rivers and defined some important things in this object (like the class, length, mean, median, minimum, maximum).
