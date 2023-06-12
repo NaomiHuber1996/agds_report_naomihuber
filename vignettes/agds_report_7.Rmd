@@ -1,0 +1,21 @@
+---
+title: "agds_report_07"
+author: "Naomi Huber"
+date: "2023-05-15"
+output: html_document
+---
+
+## Provision of the two links to the two repositories on my GitHub account
+As the exercise 7 was about the GitHub collaboration work and there is no specific data we had to write, I provide the two links for my work:
+```{r}
+# Link to the repository which is called "ReportExercise7"
+
+"https://github.com/NaomiHuber1996/ReportExercise7.git"
+```
+
+```{r}
+# Link to the repository which is called "7.4-Collaborative_Work-on-Github"
+
+"https://github.com/NaomiHuber1996/7.4-Collaborative-Work-on-Github.git"
+```
+
