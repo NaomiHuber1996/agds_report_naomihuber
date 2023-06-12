@@ -1,0 +1,67 @@
+---
+title: "re_tidy"
+author: "Naomi Huber"
+date: "2023-06-12"
+output: html_document
+---
+
+## Report Exercise 3
+Before loading the csv-data I edited the data manually to get only the relevant data. Afterwards, I loaded the data as follows:
+
+```{r}
+library(dtplyr)
+library(tidyverse)
+
+DatabaseS1 <- read.csv2("/Users/naomihuber/Desktop/UNIBE/05_FS23/Applied Geodata Science/agds_report_naomihuber/Datasets/Report Exercises 3.csv")
+
+#exercise 1
+# changing von <chr>-Daten into <int>-Daten to calculate with them
+DatabaseS1$ambient_CO2 <- as.integer(DatabaseS1$ambient_CO2)
+DatabaseS1$increased_CO2 <- as.integer(DatabaseS1$increased_CO2)
+DatabaseS1$Time_years <- as.numeric(DatabaseS1$Time_years)
+DatabaseS1
+```
+
+Now I can filter the data per experiment and calculate the log-response ratio for every experiment:
+```{r}
+#exercise 2
+# aggregate to experiment with the mean
+experimentdaten <- DatabaseS1 |>
+  group_by(Experiment) |>
+  summarise(Mittelwert_increased_CO2 = mean(increased_CO2),
+            Mittelwert_ambient_CO2 = mean(ambient_CO2))
+experimentdaten
+
+# defining the function log_response_function
+log_response_function <- function(x,y) {
+  return(log(x/y))
+}
+
+# aggregate log_response ratio
+experimentdaten_final <- experimentdaten |>
+  group_by(Experiment) |>
+  summarise(log_response_ratio = log_response_function(Mittelwert_increased_CO2, Mittelwert_ambient_CO2))
+experimentdaten_final
+
+knitr::kable(experimentdaten_final)
+```
+
+Finally, I created new variables which I aggregate to the calculated data before.
+```{r}
+#exercise 3
+# new variable "phase"
+DatabaseS1$phase <- ifelse(DatabaseS1$Time_years < 3, "early_phase",
+                           ifelse(DatabaseS1$Time_years >= 3 & DatabaseS1$Time_years <= 6, "mid_phase",
+                                  ifelse(DatabaseS1$Time_years > 6, "late_phase", NA)))
+
+
+# calculation of the log_response for every phase
+log_response <- DatabaseS1 |>
+  group_by(phase) |>
+  summarise(log_response_ratio = mean(log(increased_CO2 / ambient_CO2))) |>
+  drop_na()
+log_response
+
+knitr::kable(log_response)
+```
+
